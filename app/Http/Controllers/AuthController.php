@@ -24,7 +24,9 @@ class AuthController extends Controller
             [
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
-                'password' => 'required|confirmed'
+                'password' => 'required|confirmed',
+                'profile' => 'nullable|image',
+                'cover' => 'nullable|image'
             ]);
 
 
@@ -41,11 +43,15 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password)
             ]);
-            if($request->hasFile('pic')){
-                $user['pic'] = $request->file('pic')->store('Profileimage','public');
-                $user->save();
+            if($request->hasFile('profile')){
+                $user['profile'] = $request->file('profile')->store('Profileimage','public');
+
 
             }
+            elseif ($request->hasFile('cover')) {
+                $user['cover'] = $request->file('cover')->store('coverimage','public');
+            }
+            $user->save();
 
             return response()->json([
                 'status' => true,

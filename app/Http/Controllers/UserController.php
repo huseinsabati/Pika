@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -21,10 +22,10 @@ class UserController extends Controller
 
     // Get the posts from the users that the current user follows
     $posts = DB::table('posts')
-        ->join('users', 'users.id', '=', 'posts.user_id')
-        ->whereIn('posts.user_id', $followedUsers)
-        ->select('posts.*', 'users.name as user_name')
-        ->get();
+            ->join('users', 'users.id', '=', 'posts.user_id')
+            ->whereIn('posts.user_id', $followedUsers)
+            ->select('posts.*', 'users.name as user_name')
+            ->get();
 
     return response()->json($posts);
 }
@@ -41,19 +42,34 @@ public function update(Request $request){
         $validateUser = Validator::make($request->all(),
             [
                 'name' => 'required',
-                'email' => 'required|email|string'
+                'email' => 'required|email|string',
+                'profile' => 'nullable|image',
+                'cover' => 'nullable|image'
             ]);
         $user = User::find(auth()->user()->id);
-        if ($user) {
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->save();
-        } else {
+        $user->name = $request->name;
+        $user->email = $request->email;
+        if ($request->hasFile('profile')) {
+            $user->profile = $request->file('profile')->store('Profileimage','public');
+        }
+        elseif ($request->hasFile('cover')) {
+            $user->cover = $request->file('cover')->store('coverimage','public');
+        }
+
+        else {
             return response()->json([
                 'status' => false,
                 'message' => error('')
             ], 500);
         }
+        $user->save();
 }
+}
+public function notification(Request $request){
+    return response()->json([
+        'notifications' => DB::table('notifications')
+                           ->select('data')
+                           ->where('notifiable_id', auth()->user()->id)->get()
+        ]);
 }
 }

@@ -13,12 +13,13 @@ class PostController extends Controller
     public function index(){
 
         return response([
-            'posts' => post::orderBy('created_at','desc')->with('user:id,name,pic')->withcount('comment','like')
-            ->with('like', function($like){
+            'posts' => post::orderBy('created_at','desc')->with('user:id,name,pic')
+                       ->withcount('comment','like')
+                       ->with('like', function($like){
                 return $like->where('user_id', auth()->user()->id)
-                ->select('id','user_id','post_id')->get();
-            })->get()
-        ], 200);
+                       ->select('id','user_id','post_id')->get();
+                       })->get()
+                       ], 200);
 
     }
     public function show($id){
@@ -39,7 +40,7 @@ class PostController extends Controller
         ]);
 
         if($request->hasFile('image')){
-            $post['image'] = $request->file('image')->store('image','public');
+            $post['image'] = $request->file('image')->store('postimage','public');
             $post->save();
         }
         return response([
@@ -65,12 +66,17 @@ class PostController extends Controller
         }
 
         $attrs = $request->validate([
-            'body' => 'required|string'
+            'body' => 'required|string',
+            'image' => 'image'
         ]);
 
         $post->update([
             'body' => $attrs['body']
         ]);
+        if($request->hasFile('image')){
+            $post['image'] = $request->file('image')->store('postimage','public');
+            $post->save();
+        }
 
         return response([
             'message' => 'Post Updated Successfully',
@@ -106,9 +112,9 @@ class PostController extends Controller
     {
     $search = $request->get('search');
     $posts = Post::where('body', 'like', '%' . $search . '%')
-        ->orWhereHas('user', function ($query) use ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
-        })->get();
+             ->orWhereHas('user', function ($query) use ($search) {
+             $query->where('name', 'like', '%' . $search . '%');
+             })->get();
         if (!$posts->isEmpty()) {
         return response([
             'message' => 'Post found Successfully',

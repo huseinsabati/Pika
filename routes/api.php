@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FollowerController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
@@ -25,14 +26,14 @@ Route::post("/login", [AuthController::class, 'login']);
 Route::group(['middleware' =>['auth:sanctum']],function(){
     //user
     Route::get('/user', [UserController::class,'Profile']);//profile
-    Route::put('/user/update', [UserController::class,'update']);//update profile
+    Route::post('/user/update', [UserController::class,'update']);//update profile
     Route::post('/logout', [AuthController::class,'logout']);
 
     //post
     Route::get('/post', [PostController::class,'index']);//show all posts
     Route::get('/feed', [UserController::class,'getFollowedUsersPosts']);//user feed
     Route::post('/post', [PostController::class,'store']);//create post
-    Route::put('/post/{id}', [PostController::class,'update']);//update post
+    Route::post('/post/{id}', [PostController::class,'update']);//update post
     Route::delete('/post/{id}', [PostController::class,'destroy']);//delete post
 
 
@@ -44,7 +45,9 @@ Route::group(['middleware' =>['auth:sanctum']],function(){
     //like
     Route::post('/post/{id}/like', [LikeController::class,'likeorunlike']);
     //Follow
-    Route::post('/user/{id}/follow', [LikeController::class,'FollowUnfollow']);
+    Route::post('/user/{id}/follow', [FollowerController::class,'FollowUnfollow']);
     //search
     Route::get('/search', [PostController::class,'search']);
+    //get notifications
+    Route::get('/notifications', [UserController::class,'notification']);
 });
