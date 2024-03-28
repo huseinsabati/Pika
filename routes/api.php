@@ -3,11 +3,13 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\FollowerController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FollowerController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,12 +24,19 @@ use App\Http\Controllers\UserController;
 //unprotected
 Route::post("/register", [AuthController::class, 'register']);
 Route::post("/login", [AuthController::class, 'login']);
+
 //protected
 Route::group(['middleware' =>['auth:sanctum']],function(){
     //user
     Route::get('/user', [UserController::class,'Profile']);//profile
     Route::post('/user/update', [UserController::class,'update']);//update profile
-    Route::post('/logout', [AuthController::class,'logout']);
+    Route::post('/logout', [AuthController::class,'logout']);//logout
+    Route::post('/verify-email', [EmailVerificationController::class,'store']);//verify email
+    Route::post('/forgot-password', [UserController::class, 'sendresetcode']);
+    Route::post('/reset-password', [PasswordResetLinkController::class, 'reset']);//password reset
+
+
+
 
     //post
     Route::get('/post', [PostController::class,'index']);//show all posts

@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
+use function Laravel\Prompts\error;
 use Illuminate\Support\Facades\Validator;
 
-use function Laravel\Prompts\error;
+use Illuminate\Notifications\Notification;
+use App\Notifications\ResetPasswordNotification;
 
 class UserController extends Controller
 {
@@ -71,5 +72,10 @@ public function notification(Request $request){
                            ->select('data')
                            ->where('notifiable_id', auth()->user()->id)->get()
         ]);
+}
+public function sendresetcode(Request $request){
+    $user = User::find(auth()->user()->id);
+    $user->notify(new ResetPasswordNotification());
+
 }
 }

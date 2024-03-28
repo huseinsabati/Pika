@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Carbon\Carbon;
 use App\Models\User;
 use Ichtrojan\Otp\Otp;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\ResetpasswordRequest;
+use Illuminate\Http\RedirectResponse;
+use App\Providers\RouteServiceProvider;
+use App\Http\Requests\Auth\verificationRequest;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
-
-
-class PasswordResetLinkController extends Controller
+class EmailVerificationController extends Controller
 {
     /**
      * Send a new email verification notification.
      */
-
     private $otp;
     public function __construct(){
         $this->otp = new Otp;
     }
-
-    public function reset(ResetpasswordRequest $request)
+    public function store(Request $request)
     {
         $otp2 = $this->otp->validate($request->email,$request->code );
         if(!$otp2->status)
@@ -32,7 +34,8 @@ class PasswordResetLinkController extends Controller
 
         }
         $user = User::where('email', $request->email)->first();
-        $user->update(['password' => $request->password]);
+        $user->update(['email_verified_at' => Carbon::now()]);
+        $user->save();
 
 }
 }
