@@ -13,22 +13,24 @@ class PostController extends Controller
     public function index(){
 
         return response([
-            'posts' => post::orderBy('created_at','desc')->with('user:id,name,pic')
+
+            'posts' => post::orderBy('created_at','desc')->with('user:id,name,profile')
                        ->withcount('comment','like')
                        ->with('like', function($like){
                 return $like->where('user_id', auth()->user()->id)
                        ->select('id','user_id','post_id')->get();
-                       })->get()
+                       })->get(),
+            'status' => true
                        ], 200);
 
     }
-    public function show($id){
+    /*public function show($id){
 
         return response([
             'posts' => post::where('id', $id)->withcount('comment','like')->get()
         ], 200);
 
-    }
+    }*/
     public function store(Request $request){
 
         $attrs = $request->validate([
@@ -45,6 +47,7 @@ class PostController extends Controller
         }
         return response([
             'message' => 'Post Created Successfully',
+            'status' => true,
             'post' => $post
         ], 200);
 
@@ -54,12 +57,14 @@ class PostController extends Controller
         $post = post::find($id);
         if(!$post){
             return response([
+                'status' => false,
                 'message' => 'No Posts Found!!'
 
             ],403);
         }
         if($post->user_id != auth()->user()->id){
             return response([
+                'status' => false,
                 'message' => 'Permision denied.'
             ],403);
 
@@ -80,6 +85,7 @@ class PostController extends Controller
 
         return response([
             'message' => 'Post Updated Successfully',
+            'status' => true,
             'post' => $post
         ], 200);
 
@@ -88,12 +94,14 @@ class PostController extends Controller
         $post = post::find($id);
         if(!$post){
             return response([
+                'status' => false,
                 'message' => 'No Posts Found!!'
 
             ],403);
         }
         if($post->user_id != auth()->user()->id){
             return response([
+                'status' => false,
                 'message' => 'Permision denied.'
             ],403);
 
@@ -104,7 +112,8 @@ class PostController extends Controller
         $post->delete();
 
         return response([
-            'message' => 'Post Deleted Successfully'
+            'message' => 'Post Deleted Successfully',
+            'status' => true
         ], 200);
 
     }
@@ -118,11 +127,13 @@ class PostController extends Controller
         if (!$posts->isEmpty()) {
         return response([
             'message' => 'Post found Successfully',
+            'status' => true,
             'post' => $posts
         ], 200);
        }
        else {
         return response([
+            'status' => false,
             'message' => 'No Posts Found'
         ], 200);
     }

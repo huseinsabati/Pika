@@ -28,7 +28,10 @@ class UserController extends Controller
             ->select('posts.*', 'users.name as user_name')
             ->get();
 
-    return response()->json($posts);
+    return response()->json([
+        'posts' => $posts,
+        'status' => true
+    ]);
 }
 
 public function Profile(){
