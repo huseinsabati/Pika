@@ -7,10 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use function Laravel\Prompts\error;
 use Illuminate\Support\Facades\Validator;
-
-use Illuminate\Notifications\Notification;
-use App\Notifications\ResetPasswordNotification;
-
 class UserController extends Controller
 {
     public function getFollowedUsersPosts()
@@ -76,9 +72,5 @@ public function notification(Request $request){
                            ->where('notifiable_id', auth()->user()->id)->get()
         ]);
 }
-public function sendresetcode(Request $request){
-    $user = User::find(auth()->user()->id);
-    $user->notify(new ResetPasswordNotification());
 
-}
 }
