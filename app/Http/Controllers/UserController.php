@@ -41,28 +41,46 @@ public function update(Request $request){
     if(auth()->user()){
         $validateUser = Validator::make($request->all(),
             [
-                'name' => 'required',
-                'email' => 'required|email|string',
+                'name' => 'nullable',
+                'email' => 'nullable|email|string',
                 'profile' => 'nullable|image',
                 'cover' => 'nullable|image'
             ]);
         $user = User::find(auth()->user()->id);
-        $user->name = $request->name;
-        $user->email = $request->email;
-        if ($request->hasFile('profile')) {
-            $user->profile = $request->file('profile')->store('Profileimage','public');
-        }
-        elseif ($request->hasFile('cover')) {
-            $user->cover = $request->file('cover')->store('coverimage','public');
+        if ($request->filled('name')) {
+        $user->update([
+            'name' => $request->name,
+
+
+        ]);
+    }
+        if ($request->filled('email')) {
+            $user->update([
+                'email' => $request->email
+
+            ]);
         }
 
-        else {
-            return response()->json([
-                'status' => false,
-                'message' => error('')
-            ], 500);
+        if ($request->hasFile('profile')) {
+            $user->update([
+                'profile' => $request->file('profile')->store('Profileimage','public')
+
+            ]);
         }
-        $user->save();
+        elseif ($request->hasFile('cover')) {
+            $user->update([
+                'cover' => $request->file('cover')->store('coverimage','public')
+
+            ]);
+        }
+
+
+        return response()->json([
+            'status' => true,
+            'message' => error('')
+            ], 200);
+
+
 }
 }
 public function notification(Request $request){

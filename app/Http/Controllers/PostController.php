@@ -24,13 +24,6 @@ class PostController extends Controller
                        ], 200);
 
     }
-    /*public function show($id){
-
-        return response([
-            'posts' => post::where('id', $id)->withcount('comment','like')->get()
-        ], 200);
-
-    }*/
     public function store(Request $request){
 
         $attrs = $request->validate([
@@ -71,16 +64,19 @@ class PostController extends Controller
         }
 
         $attrs = $request->validate([
-            'body' => 'required|string',
+            'body' => 'string',
             'image' => 'image'
         ]);
+        if($request->filled('body')){
 
         $post->update([
             'body' => $attrs['body']
         ]);
+    }
         if($request->hasFile('image')){
-            $post['image'] = $request->file('image')->store('postimage','public');
-            $post->save();
+            $post->update([
+            'image' => $request->file('image')->store('postimage','public')
+            ]);
         }
 
         return response([

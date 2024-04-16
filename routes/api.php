@@ -31,11 +31,12 @@ Route::group(['middleware' =>['auth:sanctum']],function(){
     Route::get('/user', [UserController::class,'Profile']);//profile
     Route::post('/user/update', [UserController::class,'update']);//update profile
     Route::post('/logout', [AuthController::class,'logout']);//logout
+    /*
     Route::post('/verify-email', [EmailVerificationController::class,'store']);//verify email
     Route::post('/forgot-password', [UserController::class, 'sendresetcode']);
     Route::post('/reset-password', [PasswordResetLinkController::class, 'reset']);//password reset
 
-
+*/
 
 
     //post
