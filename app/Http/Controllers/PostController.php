@@ -124,8 +124,8 @@ class PostController extends Controller
              $query->where('name', 'like', '%' . $search . '%');
              })->withcount('comment','like')
              ->with('like', function($like){
-              return $like->where('user_id', auth()->user()->id)
-              ->select('id','user_id','post_id')->get();
+                return $like->where('user_id', auth()->user()->id)
+                ->select('id','user_id','post_id')->get();
              })->with(['user.followers' => function ($followers) {
               $loggedInUserId = auth()->user()->id;
               $followers->where('follower_id', $loggedInUserId)->select('follower_id');

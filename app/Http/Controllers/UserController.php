@@ -21,7 +21,7 @@ class UserController extends Controller
 
     return response()->json([
         'posts' => post::orderBy('created_at','desc')->with('user:id,name,profile')
-                       ->withcount('comment','like')
+
                        ->with('like', function($like){
                    return $like->where('user_id', auth()->user()->id)
                        ->select('id','user_id','post_id')->get();
@@ -30,7 +30,7 @@ class UserController extends Controller
                        ->select('posts.*', 'users.name as user_name')->with(['user.followers' => function ($followers) {
                         $loggedInUserId = auth()->user()->id;
                         $followers->where('follower_id', $loggedInUserId)->select('follower_id');
-                        }])
+                        }])->withcount('comment','like')
                        ->get(),
             'status' => true
                        ], 200
