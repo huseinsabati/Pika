@@ -17,9 +17,12 @@ class PostController extends Controller
             'posts' => post::orderBy('created_at','desc')->with('user:id,name,profile')
                        ->withcount('comment','like')
                        ->with('like', function($like){
-                return $like->where('user_id', auth()->user()->id)
-                       ->select('id','user_id','post_id')->get();
-                       })->get(),
+                        return $like->where('user_id', auth()->user()->id)
+                        ->select('id','user_id','post_id')->get();
+                       })->with(['user.followers' => function ($followers) {
+                        $loggedInUserId = auth()->user()->id;
+                        $followers->where('follower_id', $loggedInUserId)->select('follower_id');
+                    }])->get(),
             'status' => true
                        ], 200);
 
@@ -119,12 +122,18 @@ class PostController extends Controller
     $posts = Post::where('body', 'like', '%' . $search . '%')
              ->orWhereHas('user', function ($query) use ($search) {
              $query->where('name', 'like', '%' . $search . '%');
-             })->get();
+             })->withcount('comment','like')
+             ->with('like', function($like){
+              return $like->where('user_id', auth()->user()->id)
+              ->select('id','user_id','post_id')->get();
+             })->with(['user.followers' => function ($followers) {
+              $loggedInUserId = auth()->user()->id;
+              $followers->where('follower_id', $loggedInUserId)->select('follower_id');
+            }])->get();
         if (!$posts->isEmpty()) {
         return response([
-            'message' => 'Post found Successfully',
-            'status' => true,
-            'post' => $posts
+            'post' => $posts,
+            'status' => true
         ], 200);
        }
        else {

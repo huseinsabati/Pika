@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\post;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use function Laravel\Prompts\error;
 use Illuminate\Support\Facades\Validator;
+
 class UserController extends Controller
 {
     public function getFollowedUsersPosts()
@@ -17,17 +19,22 @@ class UserController extends Controller
     // Get the ids of the users that the current user follows
     $followedUsers = DB::table('follower_user')->where('follower_id', $userId)->pluck('user_id');
 
-    // Get the posts from the users that the current user follows
-    $posts = DB::table('posts')
-            ->join('users', 'users.id', '=', 'posts.user_id')
-            ->whereIn('posts.user_id', $followedUsers)
-            ->select('posts.*', 'users.name as user_name')
-            ->get();
-
     return response()->json([
-        'posts' => $posts,
-        'status' => true
-    ]);
+        'posts' => post::orderBy('created_at','desc')->with('user:id,name,profile')
+                       ->withcount('comment','like')
+                       ->with('like', function($like){
+                   return $like->where('user_id', auth()->user()->id)
+                       ->select('id','user_id','post_id')->get();
+                       })->join('users', 'users.id', '=', 'posts.user_id')
+                       ->whereIn('posts.user_id', $followedUsers)
+                       ->select('posts.*', 'users.name as user_name')->with(['user.followers' => function ($followers) {
+                        $loggedInUserId = auth()->user()->id;
+                        $followers->where('follower_id', $loggedInUserId)->select('follower_id');
+                        }])
+                       ->get(),
+            'status' => true
+                       ], 200
+    );
 }
 
 public function Profile(){

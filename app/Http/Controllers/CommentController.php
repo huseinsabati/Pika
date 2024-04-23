@@ -20,7 +20,7 @@ class CommentController extends Controller
             ],403);
         }
         return response([
-             'comment' => $post->comment()->with('user:id,name,image')->get()
+             'comment' => $post->comment()->with('user:id,name,profile')->get()
         ], 200);
     }
 
