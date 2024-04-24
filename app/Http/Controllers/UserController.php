@@ -91,11 +91,35 @@ public function update(Request $request){
 }
 }
 public function notification(Request $request){
-    return response()->json([
-        'notifications' => DB::table('notifications')
-                           ->select('data')
-                           ->where('notifiable_id', auth()->user()->id)->get()
-        ]);
+    $user = user::find(auth()->user()->id);
+    $notifications = DB::table('notifications')
+    ->where('notifiable_id', auth()->user()->id)->get();
+    foreach($user->unreadNotifications as $notification)
+    {
+        if(!$notifications->isEmpty()){
+
+            DB::table('Usernotifications')->insert([
+                    'tid' => $notification->data['id'],
+                    'name' => $notification->data['name'],
+                    'type' => $notification->type,
+                    'notifiable_id' => $notification->notifiable_id,
+                    'created_at' => $notification->created_at
+            ]);
+                    /*'notifications' => DB::table('notifications')
+                                    ->where('notifiable_id', auth()->user()->id)->get(),*/
+            $user->unreadNotifications->markAsRead();
+
+        }
+        else{
+            return response([
+                'message' => 'No notifications to show'
+            ]);
+        }
+
+    }
+    return response([
+        'notifications' => DB::table('Usernotifications')->where('notifiable_id', auth()->user()->id)->orderBy('created_at', 'desc')->get()
+    ]);
 }
 
 }

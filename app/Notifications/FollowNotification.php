@@ -44,7 +44,8 @@ class FollowNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'follower_name' => $this->follow->name,
+            'id' => $this->follow->id,
+            'name' => $this->follow->name,
         ];
     }
 }

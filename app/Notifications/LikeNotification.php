@@ -42,8 +42,8 @@ class LikeNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'like_id' => $this->like->id,
-            'like_name' => $this->like->name,
+            'id' => $this->like->id,
+            'name' => $this->like->name,
         ];
     }
 }
